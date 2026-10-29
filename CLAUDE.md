@@ -4,6 +4,11 @@ These notes live at `URA/research-notes/`. The better-than-fish skill
 governs how to add and maintain them; re-read its SKILL.md for markers,
 triggers, and the supersede pattern.
 
+The folder is a git repo, public at
+https://github.com/MidVC/seahorn-bitwuzla-notes (branch `main`, since
+2026-10-29). Anyone can read it, so keep secrets and private details
+out. Commit and push note changes only when the user asks.
+
 **Goal:** add an optional Bitwuzla backend for monolithic bit-vector BMC
 behind SeaHorn's generic `solver::Solver` interface, then validate it
 (correct answers, models, cores, traces) against the Z3 adapter.

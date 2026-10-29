@@ -112,6 +112,7 @@
 - First progress number: opsem 48 + 1 expected failure (77 `unknown`), opsem2 16/50 (34 `unknown`). All 111 failures rerun: every one is `unknown`, no wrong answers. Blockers: `select` 44, then 1.4's bit-vector operators. Results in `URA/scratch/progress-1.3/`; new scripts `scratch/rerun_lit_tests.py`, `scratch/compare_lit_xml.py`.
 - [OBS 2026-10-29] Printing a whole Expr in an error message hung two memset tests (tree printing of a shared DAG is exponential). Fixed and unit-tested.
 - `journal/2026-10/2026-10-29-step-1.3-smallest-working-example.md`.
+- These notes are now a public git repo: https://github.com/MidVC/seahorn-bitwuzla-notes (`main`), with a `README.md` for readers.
 **Critical corrections:** none. The revert is a change of approach, not a wrong claim.
 **Status:** complete
 **Next-session pickup candidates:** plan 1.4 (all bit-vector operators), probably followed closely by 1.6 (arrays).
