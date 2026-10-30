@@ -33,6 +33,8 @@ behind SeaHorn's generic `solver::Solver` interface, then validate it
   and `seahorn/build-clam/` (`WITH_CLAM=ON`, for Path BMC / `test/bmc`;
   `scratch/build_seahorn_clam.sh`). Both need the main build's
   `CMAKE_CXX_FLAGS`; see `journal/2026-10/2026-10-14-build-configurations.md`.
+  The full configure command for `build/` is in the 1.4 journal
+  (VS Code's CMake Tools wiped that tree's cache once, 2026-10-29).
   Neither tree has Yices. Bitwuzla: `WITH_BITWUZLA=AUTO|ON|OFF` (default
   AUTO, since 2026-10-22); `-DBITWUZLA_HOME` pins a prefix and makes it
   required. `build/` has it on (BITWUZLA_HOME set); `build-clam/` finds

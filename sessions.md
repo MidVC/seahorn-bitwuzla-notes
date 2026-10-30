@@ -116,3 +116,17 @@
 **Critical corrections:** none. The revert is a change of approach, not a wrong claim.
 **Status:** complete
 **Next-session pickup candidates:** plan 1.4 (all bit-vector operators), probably followed closely by 1.6 (arrays).
+
+## 2026-10-30
+**Theme:** Plan 1.4: every bit-vector operator, after restoring the main build tree.
+**Key outputs:**
+- Plan 1.4 ✅, committed as `615ef6fd` and pushed. `marshal_bitwuzla` encodes every `BvOpKind`, including the nine overflow predicates (Z3's one-direction meaning, built from Bitwuzla's two-direction tests plus the sign). It rejects `INT2BV`/`BV2INT` and `BEXT_ROTATE_*` on purpose.
+- `units_bitwuzla` 12/12 (2332 assertions): every operator against Z3 on all 3-bit inputs, the overflow predicates against Z3 and exact arithmetic at widths 1-4. Four planted bugs were all caught.
+- Examples `scratch/mwe/{divshift,divshift_safe,overflow,overflow_safe}.c` match `smt-z3`, as do the 1.3 ones; `mem.c` added as `Pending: 1.6`. New runner: `scratch/run_mwe.sh`.
+- Progress number: opsem 86 + 1 expected failure (was 48 + 1), opsem2 21/50 (was 16). No 1.3 pass lost; all 68 failures answer `unknown`. Blockers now only `select` 64, `const` 2 (1.6) and lambda `fapp` 2 (1.7). Results in `URA/scratch/progress-1.4/`.
+- [FACT] `sea` lowers the overflow intrinsics unless given `--with-arith-overflow`; Z3's marshal silently drops a third argument of `bvsub`, `bvmul`, the divisions and the shifts.
+- [OBS 2026-10-30] VS Code's CMake Tools had left `seahorn/build` without `CMakeCache.txt`; reconfigured with the original values (command now recorded in the journal).
+- `journal/2026-10/2026-10-30-step-1.4-bit-vector-operators.md`; plan notes "From 1.4" in 1.6 and 1.7.
+**Critical corrections:** none. One error of my own: restoring the encoder with `cp -p` kept its old timestamp, so ninja installed the planted bugs once; caught by the unit tests and rebuilt.
+**Status:** complete
+**Next-session pickup candidates:** plan 1.5 (models and traces) or 1.6 (arrays, which unblocks 64 tests).
