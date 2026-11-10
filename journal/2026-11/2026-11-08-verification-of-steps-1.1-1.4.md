@@ -56,6 +56,12 @@ shortcut", which the one-argument test now closes.
 | opsem (126) | 86 | 40 | 0 |
 | opsem2 (50) | 21 | 29 | 0 |
 
+[SUPERSEDED → journal/2026-11/2026-11-10-verification-tools.md] The 86
+"same" of opsem include `nham.1.ll`, where neither solver prints an
+answer: 85 same plus 1 with no answer from either (106 + 1 in all, not
+107). Why I was misled: `compare_answers.py` compared the answers as text,
+and "none" equals "none". Since 2026-11-10 it counts that case apart.
+
 The 69 `unknown`s stop on `select` 65, `const` 2 (1.6) and `fapp` 2
 (1.7). Pass counts are those of 1.4: opsem 86 + 1 expected failure,
 opsem2 21.

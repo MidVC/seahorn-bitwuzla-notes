@@ -137,10 +137,26 @@
 - One commit, `4639f539`, pushed 2026-11-10 (two local commits squashed): FindBitwuzla reads the version from the library without `bitwuzla.pc`; the encoder rejects `=>`, `<=>`, `=`, `distinct` with other than two arguments; Bitwuzla's encoding errors become `UnsupportedExpr`; new tests.
 - New tests: Boolean truth tables against Z3, one-argument n-ary operators, and a differential fuzzer whose `sat` answers are certified by Z3. 320000 fuzzed checks: 0 disagreements.
 - Mutation test: 67 of 68 planted bugs caught; the survivor is equivalent. `scratch/mutate_bitwuzla.py`.
-- opsem/opsem2 answers per test against `smt-z3`: 107 same, 69 `unknown` (`select` 65, `const` 2, `fapp` 2), 0 different. Other checks (examples, selector 6/6 + 8/8, detection 27/27, UBSan, Guard Malloc, other unit tests) pass.
+- opsem/opsem2 answers per test against `smt-z3`: 107 same (106 + 1 where neither answers; see 2026-11-10), 69 `unknown` (`select` 65, `const` 2, `fapp` 2), 0 different. Other checks (examples, selector 6/6 + 8/8, detection 27/27, UBSan, Guard Malloc, other unit tests) pass.
 - Independent review by a subagent: no wrong-answer path; its four points were fixed or parked.
 - Build trees moved out of OneDrive to `~/builds/seahorn` (`SEAHORN_BUILDS`); new `scratch/build_seahorn.sh`; scripts and VS Code settings updated; same results on the new trees; old trees (5.8 GB) deleted.
 - `journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md`; two items added to `loose-ends/parked.md`.
 **Critical corrections:** none of earlier claims. The 1.4 note that bit-vector n-ary forms are only built by Z3-to-Expr converters stands; opsem's default simplifier is such a converter (parked question about `smt-z3`).
 **Status:** complete
-**Next-session pickup candidates:** decide on the uncommitted CI fix (the fork's draft PR cannot pull the buildpack image: `MidVC` is not lowercase); plan 1.5 or 1.6.
+**Next-session pickup candidates:** the CI fix (see 2026-11-10); plan 1.5 or 1.6.
+
+## 2026-11-10
+**Theme:** Push the verification fixes; fix CI on the fork.
+**Key outputs:**
+- `b18030e8` and `50ec55b9` squashed into `4639f539` (same tree) and pushed to `bitwuzla-support`; notes updated to cite it and pushed (`a6a5a89`).
+- CI on the fork failed because `MidVC` is not lowercase. Fix (lowercase the owner, fall back to seahorn's buildpack image) on its own branch `fix-ci-buildpack-image` (`7a284207`, based on upstream `dev18` @ `2e9eed07`); PR https://github.com/seahorn/seahorn/pull/614.
+- `journal/2026-11/2026-11-10-ci-fork-buildpack-image.md`.
+- The user chose verification rules (now in `URA/CLAUDE.md`): pass criteria first, differential testing, mutation with bugs written by a separate agent, safe failure, fresh review before pushing, a correctness case per step; plus three tools set up once.
+- Formula check (translation validation), commit `1ab43e7b` (pushed): `--horn-bw-check-encoding=FILE`. On opsem/opsem2, 2485 formulas `SAME`, 0 `DIFFERENT`. It caught 11 of 14 encoder bugs planted at lit level; the 3 survivors are explained.
+- `scratch/coverage_bitwuzla.sh` (93.3% of lines; every other line has a reason) and `scratch/verify_all.sh` (one table, all checks).
+- Bugs planted in the check by a separate agent: all 21 caught or explained (1 equivalent), after 5 tests added for the survivors.
+- A fresh review found false-`SAME` cases through constant names, and `verify_all` passing too easily. All fixed and tested.
+- `journal/2026-11/2026-11-10-verification-tools.md`.
+**Critical corrections:** my first CI draft (lowercase only, plus a repository variable) would still have failed without the variable: the fork has no image of its own. The 2026-11-08 "107 same" counted a test where neither solver answers: 106 + 1 (superseded there).
+**Status:** complete
+**Next-session pickup candidates:** after #614 merges, sync the fork's `dev18` so draft PR #1 gets CI; plan 1.5 or 1.6. Each step from now on follows the verification rules.

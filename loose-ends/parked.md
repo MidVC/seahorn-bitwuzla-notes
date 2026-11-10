@@ -108,12 +108,21 @@ factor and could answer wrongly. Bitwuzla encodes it correctly, so the
 two solvers would disagree with Bitwuzla right.
 **Why parked:** an upstream question, found during the 2026-11-08
 verification; not needed for the Bitwuzla work.
+**Update 2026-11-10:** the formula check settles half of it. The unit test
+`bitwuzla.encoding check` shows that Z3's encoding of a 3-argument `bvmul`
+differs from Bitwuzla's, which keeps every factor. On opsem/opsem2, every
+formula Bitwuzla could encode was proved equal to Z3's encoding (0
+`DIFFERENT`). So no such `bvmul` reached the solver there, except perhaps
+inside the memory formulas that Bitwuzla cannot encode yet (plan 1.6).
+Rerun the formula check after 1.6: a `DIFFERENT` on an n-ary `bvmul` would
+be this bug.
 **To resume:** log the simplified terms (`-log=opsem.simplify`) on tests
 with symbolic `memset`/`memcpy` lengths; look for `bvmul` with three or
 more arguments; then build a small C program where dropping a factor
 changes the answer.
 **Effort estimate:** ~1-2 hours
-**References:** journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md
+**References:** journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md,
+journal/2026-11/2026-11-10-verification-tools.md
 
 ## Make sure the Bitwuzla header comes from the library's installation
 **Status:** parked 2026-11-08

@@ -35,7 +35,9 @@ behind SeaHorn's generic `solver::Solver` interface, then validate it
   - `build/`: the main tree, `WITH_CLAM=OFF`, made by
     `scratch/build_seahorn.sh`;
   - `build-clam/`: `WITH_CLAM=ON`, for Path BMC / `test/bmc`, made by
-    `scratch/build_seahorn_clam.sh`.
+    `scratch/build_seahorn_clam.sh`;
+  - `build-cov/`: like `build/`, with clang's coverage instrumentation,
+    made by `scratch/coverage_bitwuzla.sh`.
 
   The scripts in `scratch/` look for the trees there. "`build/`" in notes
   older than 2026-11-08 means `URA/seahorn/build`, now deleted. Both trees
@@ -49,11 +51,18 @@ behind SeaHorn's generic `solver::Solver` interface, then validate it
   required. `build/` has it on (BITWUZLA_HOME set); `build-clam/` finds
   none, so it is off until plan 2.4.
   `seahorn --version` prints the linked Bitwuzla version.
-- Verification tools (since 2026-11-08; see
-  `journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md`): the
-  differential fuzzer in `units_bitwuzla` (`BITWUZLA_FUZZ_N`,
-  `BITWUZLA_FUZZ_SEED`), `scratch/mutate_bitwuzla.py` (planted bugs) and
-  `scratch/compare_answers.py` (per-test answers, `smt-z3` vs `smt-bw`).
+- Verification: the rules every step follows are in `URA/CLAUDE.md`
+  (since 2026-11-10). `scratch/verify_all.sh` reruns every check and prints
+  one table; quote its numbers. The tools, from the 2026-11-08 and
+  2026-11-10 journal entries:
+  - the differential fuzzer in `units_bitwuzla` (`BITWUZLA_FUZZ_N`,
+    `BITWUZLA_FUZZ_SEED`);
+  - the formula check (`--horn-bw-check-encoding=FILE`, translation
+    validation against Z3's encoding);
+  - `scratch/mutate_bitwuzla.py` (planted bugs; `MUTATE_MODE=lit` for the
+    formula check on opsem);
+  - `scratch/coverage_bitwuzla.sh` (build tree `build-cov`);
+  - `scratch/compare_answers.py` (per-test answers, `smt-z3` vs `smt-bw`).
 - OneDrive: it changed every file under URA to mode `rwx------`, so stage
   with `git -c core.fileMode=false add <files>`. It also breaks long
   writes under URA: write lit and fuzz logs to `$TMPDIR`, and retry a ninja
