@@ -170,5 +170,52 @@
 - New scripts: `check_traces.py`, `run_cex_suite.py`; `verify_all.sh` rows `traces` and `cex`.
 - `journal/2026-11/2026-11-10-step-1.5-models-and-traces.md` (criteria, results, correctness case).
 **Critical corrections:** my first negative control passed when the harness had not even linked; it now requires a real run. llvm-cov counts a line after a call that threw as run, so coverage numbers can be slightly high (recorded in the journal).
-**Status:** complete (push pending)
+**Status:** complete (pushed 2026-11-10: `8b85c705`, notes `895354e`)
 **Next-session pickup candidates:** push `8b85c705` and these notes (asked first); plan 1.6 (memory as arrays; notes "From 1.5" in the plan); after #614 merges, sync the fork's `dev18`.
+
+## 2026-11-10 (evening): plan step 1.6, and a whole review
+**Theme:**
+- push 1.5;
+- plan 1.6 (memory as arrays) under the verification rules;
+- then a fresh review of every feature that no review had seen.
+
+**Key outputs:**
+- Pushed `8b85c705` and the notes `895354e`.
+- Plan 1.6 ✅, SeaHorn commit `29b09883` (local until the user approves the
+  push). It encodes arrays from bit-vectors to bit-vectors. The model
+  decodes array values and evaluates structs field by field, and has two
+  guards against Bitwuzla 0.9.1's wrong values for array equalities.
+- Results: `test/cex` 5/5 with `smt-bw` (was 1/5); opsem/opsem2 170 same
+  as `smt-z3` (was 106), 0 different; formula check 2953 `SAME`, 0
+  `DIFFERENT`.
+- Evidence: 8 × 4000 fuzzed formulas with arrays (0 disagreements, 267,792
+  model values equal Z3's), 45 independent mutants (44 caught, 1
+  equivalent), a fresh review, `verify_all` PASS (152/156 mutants, the 4
+  survivors known equivalent).
+- The whole review (three agents: CI fix, scripts and examples, the whole
+  adapter) found no wrong answer in the adapter. It found script checks
+  that could pass vacuously; those are fixed (`run_mwe.sh`, `verify_all`'s
+  examples, selector, detection and clam rows, `check_traces.py`). The
+  rest is parked (5 entries).
+- `journal/2026-11/2026-11-10-step-1.6-memory-as-arrays.md`,
+  `journal/2026-11/2026-11-10-whole-review-of-unreviewed-features.md`.
+
+**Critical corrections:**
+- My first reading of Bitwuzla's wrong array-equality value (the `TODO` in
+  `ArraySolver::value`, equalities outside the assertions only) was wrong.
+  The evaluator compares value terms, and substitution brings asserted
+  equalities in too. Found by the review; fixed with the second guard;
+  superseded in the 1.6 journal.
+- `check_traces.py`'s docstring said the trace does not print
+  `shadow.mem.init` or memory PHIs; it prints their values.
+- The examples' comments claimed operations that the optimizer removes.
+- My own process slip: a hand-made mutant run in a command that timed out
+  left a planted bug in the source for a few minutes; it was caught and
+  restored (checked against the frozen copy), and every later build and
+  check used the restored source. Only the mutation script, which
+  restores on signals, touches sources now.
+
+**Status:** complete (push pending)
+**Next-session pickup candidates:** push `29b09883` and these notes (asked
+first); sync the fork's `dev18` (#614 is merged); plan 1.7 (lambdas; notes
+"From 1.6" in the plan); the parked entries from the whole review.

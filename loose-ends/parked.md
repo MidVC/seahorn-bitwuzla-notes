@@ -116,6 +116,12 @@ formula Bitwuzla could encode was proved equal to Z3's encoding (0
 inside the memory formulas that Bitwuzla cannot encode yet (plan 1.6).
 Rerun the formula check after 1.6: a `DIFFERENT` on an n-ary `bvmul` would
 be this bug.
+**Update 2026-11-10 (after 1.6):** with memory encoded, opsem/opsem2 gave
+2953 formulas `SAME`, 0 `DIFFERENT`, so none reached the solver with the
+test suites' flags. The whole review (journal 2026-11-10, whole review)
+adds: `xor` (Bool) has the same two-argument limit (`ExprToZ.def:41`), and
+a reviewer probe has opsem's simplifier build `bvmul(x, y, z)` under
+`--horn-bv2-simplify`. Bitwuzla's encoding is the right one there.
 **To resume:** log the simplified terms (`-log=opsem.simplify`) on tests
 with symbolic `memset`/`memcpy` lengths; look for `bvmul` with three or
 more arguments; then build a small C program where dropping a factor
@@ -140,3 +146,104 @@ directory of SeaHorn has `bitwuzla/cpp/bitwuzla.h`, or add the directory
 (Linux CI).
 **Effort estimate:** ~1 hour
 **References:** journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md
+
+## CI follow-ups after seahorn PR #614
+**Status:** parked 2026-11-10
+**Context:** #614 was merged on 2026-11-10 (`e4ce011c`). The whole review
+found three loose ends:
+- our fork's `dev18` is 72 commits behind seahorn's, so the fix has not
+  run on `MidVC`, and the draft PR #1 still fails on the mixed-case image
+  name;
+- `buildpack-deps.yml` still uses the mixed-case owner, so a fork with
+  capitals cannot publish its own image;
+- the fallback notice says "not found" for any error of
+  `docker manifest inspect`.
+
+Also: CI never builds Bitwuzla (neither image has it; `units_bitwuzla` is
+not built), so CI says nothing about our code.
+**Why parked:** syncing the fork and a follow-up PR are outward-facing; the
+user decides.
+**To resume:**
+1. Sync `MidVC/seahorn` `dev18` with upstream, and rerun the draft PR's
+   CI.
+2. Optionally, a PR to `dev18` that lowercases the owner in
+   `buildpack-deps.yml` and prints the inspect error in the notice.
+3. For plan 4.3: install Bitwuzla in the image used for our branch, and
+   build and run `units_bitwuzla`.
+
+**Effort estimate:** ~30 min for 1-2; 4.3 is larger
+**References:** journal/2026-11/2026-11-10-ci-fork-buildpack-image.md,
+journal/2026-11/2026-11-10-whole-review-of-unreviewed-features.md
+
+## FindBitwuzla: run a test program that throws, pin the version
+**Status:** parked 2026-11-10
+**Context:** FindBitwuzla's check only compiles and links a program that
+throws nothing (`check_cxx_source_compiles`). It runs before
+`LLVM_CXXFLAGS`/`LLVM_LDFLAGS` are added (`CMakeLists.txt:201,256-257`).
+A reviewer probe says a libc++ mismatch then passes the check, and every
+Bitwuzla exception aborts SeaHorn; not reproduced by me. Also:
+- `find_package(Bitwuzla 0.9)` accepts any later version, while the array
+  guards are argued from 0.9.1's source;
+- the "shared library first" order and the "version unknown" branch have
+  no detection case.
+
+**Why parked:** our build links the system libc++ on both sides; not a
+risk for the current work.
+**To resume:**
+1. Make the test program throw and catch a `bitwuzla::Exception` (e.g.
+   `assert_formula` of a bit-vector term), use `check_cxx_source_runs`,
+   and move the check after the LLVM flags.
+2. Pin 0.9.1 (`EXACT`), or make a new version rerun the fuzzer.
+3. Add detection cases: a prefix with both `.a` and `.dylib`; a broken
+   library with a header and no `.pc`.
+
+**Effort estimate:** ~half-day (the 27 detection cases must still pass)
+**References:** journal/2026-11/2026-11-10-whole-review-of-unreviewed-features.md
+
+## Formula check: Debug builds, log order, names the encoders treat differently
+**Status:** parked 2026-11-10
+**Context:** Limits of `--horn-bw-check-encoding` found by the whole review:
+- SeaHorn's Z3 encoder asserts `in_width < out_width` for extensions, and
+  our encoder accepts the same width, so a Debug build aborts in the check
+  (and in a Debug `units_bitwuzla`);
+- `add()` runs the check before `assert_formula`, so a non-Bool assertion
+  is logged `SAME` and then `NOT-ENCODED` (SeaHorn never adds one);
+- two constants with the same name and sort are one constant for Z3, two
+  for Bitwuzla (UNCHECKED in the check);
+- the fuzzer leaves out the n-ary forms where the encoders differ.
+
+**Why parked:** none affects the answers or the counts in our runs (Release
+builds, Bool assertions only).
+**To resume:**
+1. Move `checkEncoding` after `assert_formula`.
+2. Under `#ifndef NDEBUG`, have `notForZ3` refuse same-width extensions.
+3. Decide whether to check n-ary forms against a nested binary encoding.
+
+**Effort estimate:** ~1-2 hours, with tests and mutants
+**References:** journal/2026-11/2026-11-10-whole-review-of-unreviewed-features.md
+
+## Examples that exercise more than the optimizer leaves
+**Status:** parked 2026-11-10
+**Context:** In the final bitcode the examples lose operations:
+- `divshift*.c` have no `urem`, `srem` or `shl`;
+- `inc*.c` have no addition.
+
+Other gaps:
+- `overflow.c` violates only the signed addition;
+- `branch.c` has no `unsat` counterpart;
+- memory is tested with 4-byte accesses only, and `mem.c`'s load tests the
+  byte position in a word only when the model puts `i` at an odd index.
+
+Every operator is checked by the unit tests and the fuzzer; the examples
+are end-to-end smoke tests.
+**Why parked:** found by the whole review; not needed to trust the
+operators.
+**To resume:**
+1. Write examples where `%` has no `/` next to it, and where a shift
+   survives.
+2. Add a `branch_safe.c`, an unsigned-multiplication overflow, and memory
+   with 1- and 8-byte accesses.
+3. Check the bitcode with `--keep-temps` and `llvm-dis`.
+
+**Effort estimate:** ~1-2 hours
+**References:** journal/2026-11/2026-11-10-whole-review-of-unreviewed-features.md
