@@ -62,7 +62,10 @@ behind SeaHorn's generic `solver::Solver` interface, then validate it
   - `scratch/mutate_bitwuzla.py` (planted bugs; `MUTATE_MODE=lit` for the
     formula check on opsem);
   - `scratch/coverage_bitwuzla.sh` (build tree `build-cov`);
-  - `scratch/compare_answers.py` (per-test answers, `smt-z3` vs `smt-bw`).
+  - `scratch/compare_answers.py` (per-test answers, `smt-z3` vs `smt-bw`);
+  - `scratch/check_traces.py` (since 1.5: each `sat` example's trace and
+    harness, run natively) and `scratch/run_cex_suite.py` (SeaHorn's
+    `test/cex` with both solvers).
 - OneDrive: it changed every file under URA to mode `rwx------`, so stage
   with `git -c core.fileMode=false add <files>`. It also breaks long
   writes under URA: write lit and fuzz logs to `$TMPDIR`, and retry a ninja

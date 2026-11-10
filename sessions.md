@@ -160,3 +160,15 @@
 **Critical corrections:** my first CI draft (lowercase only, plus a repository variable) would still have failed without the variable: the fork has no image of its own. The 2026-11-08 "107 same" counted a test where neither solver answers: 106 + 1 (superseded there).
 **Status:** complete
 **Next-session pickup candidates:** after #614 merges, sync the fork's `dev18` so draft PR #1 gets CI; plan 1.5 or 1.6. Each step from now on follows the verification rules.
+
+## 2026-11-10 (later): plan step 1.5
+**Theme:** Push the verification tools; plan 1.5 (models and traces), the first step under the verification rules.
+**Key outputs:**
+- Pushed `1ab43e7b` (formula check) and the notes (`6ca28b8`).
+- Plan 1.5 ✅, SeaHorn commit `8b85c705` (local until the user approves the push): `bitwuzla_model_impl`, a generation counter so an out-of-date model gives `nondet`, `decode_bitwuzla_value` (unsigned numerals). `--log=cex` and `--cex` work with `smt-bw`.
+- Evidence: the fuzzer compares 448,032 model values with Z3 (8 seeds), all four `sat` examples' harnesses reach the error natively (`scratch/check_traces.py`, with a negative control), `test/cex` 1/5 (4 wait on memory), 25 independent mutants (24 caught, 1 equivalent), a fresh review (5 test weaknesses fixed), `verify_all` PASS.
+- New scripts: `check_traces.py`, `run_cex_suite.py`; `verify_all.sh` rows `traces` and `cex`.
+- `journal/2026-11/2026-11-10-step-1.5-models-and-traces.md` (criteria, results, correctness case).
+**Critical corrections:** my first negative control passed when the harness had not even linked; it now requires a real run. llvm-cov counts a line after a call that threw as run, so coverage numbers can be slightly high (recorded in the journal).
+**Status:** complete (push pending)
+**Next-session pickup candidates:** push `8b85c705` and these notes (asked first); plan 1.6 (memory as arrays; notes "From 1.5" in the plan); after #614 merges, sync the fork's `dev18`.
