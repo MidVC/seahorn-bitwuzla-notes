@@ -29,17 +29,35 @@ behind SeaHorn's generic `solver::Solver` interface, then validate it
   `BitwuzlaSolverImpl.cc`, `units/units_bitwuzla.cpp`
 - Engine + selection: `lib/seahorn/SolverBmc.cc`, `lib/seahorn/BmcPass.cc`
 - Build: top-level `CMakeLists.txt`, `lib/seahorn/Smt/CMakeLists.txt`,
-  `units/CMakeLists.txt`. Build trees: `seahorn/build/` (main, `WITH_CLAM=OFF`)
-  and `seahorn/build-clam/` (`WITH_CLAM=ON`, for Path BMC / `test/bmc`;
-  `scratch/build_seahorn_clam.sh`). Both need the main build's
-  `CMAKE_CXX_FLAGS`; see `journal/2026-10/2026-10-14-build-configurations.md`.
-  The full configure command for `build/` is in the 1.4 journal
-  (VS Code's CMake Tools wiped that tree's cache once, 2026-10-29).
+  `units/CMakeLists.txt`. Build trees, outside OneDrive since 2026-11-08 (they
+  take ~6 GB, and OneDrive breaks ninja's log writes), in `$SEAHORN_BUILDS`
+  (default `~/builds/seahorn`):
+  - `build/`: the main tree, `WITH_CLAM=OFF`, made by
+    `scratch/build_seahorn.sh`;
+  - `build-clam/`: `WITH_CLAM=ON`, for Path BMC / `test/bmc`, made by
+    `scratch/build_seahorn_clam.sh`.
+
+  The scripts in `scratch/` look for the trees there. "`build/`" in notes
+  older than 2026-11-08 means `URA/seahorn/build`, now deleted. Both trees
+  need the main build's `CMAKE_CXX_FLAGS`; see
+  `journal/2026-10/2026-10-14-build-configurations.md`. IntelliSense reads
+  `build/compile_commands.json`. VS Code's CMake Tools wiped the main tree's
+  cache twice through upstream's `CMakePresets.json`;
+  `URA/.vscode/settings.json` now keeps it away.
   Neither tree has Yices. Bitwuzla: `WITH_BITWUZLA=AUTO|ON|OFF` (default
   AUTO, since 2026-10-22); `-DBITWUZLA_HOME` pins a prefix and makes it
   required. `build/` has it on (BITWUZLA_HOME set); `build-clam/` finds
   none, so it is off until plan 2.4.
   `seahorn --version` prints the linked Bitwuzla version.
+- Verification tools (since 2026-11-08; see
+  `journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md`): the
+  differential fuzzer in `units_bitwuzla` (`BITWUZLA_FUZZ_N`,
+  `BITWUZLA_FUZZ_SEED`), `scratch/mutate_bitwuzla.py` (planted bugs) and
+  `scratch/compare_answers.py` (per-test answers, `smt-z3` vs `smt-bw`).
+- OneDrive: it changed every file under URA to mode `rwx------`, so stage
+  with `git -c core.fileMode=false add <files>`. It also breaks long
+  writes under URA: write lit and fuzz logs to `$TMPDIR`, and retry a ninja
+  build that fails with "Operation timed out".
 - Bitwuzla: 0.9.1 built with Clang 18.1.8; shared library installed at
   `$HOME/opt/bitwuzla-0.9.1`. Build/link evidence and exact configuration:
   `journal/2026-10/2026-10-14-bitwuzla-build-and-link.md`.

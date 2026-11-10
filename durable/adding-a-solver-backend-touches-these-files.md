@@ -136,11 +136,11 @@ timeout.
        → seahorn/lib/seahorn/PathBmc.cc:109-116, 1050-1071
 
 [FACT] Without `HAVE_CLAM`, `PathBmc.cc` builds as a stub. The main build
-`seahorn/build` has `WITH_CLAM=OFF`, so Path BMC is not exercised there,
-and `test/bmc` cannot run there at all. Use `seahorn/build-clam` instead
+(`build/`, in `~/builds/seahorn` since 2026-11-08) has `WITH_CLAM=OFF`, so Path BMC is not exercised there,
+and `test/bmc` cannot run there at all. Use `build-clam/` instead
 (plan 0.3). Upstream CI also builds with `WITH_CLAM=OFF` and skips
 `test/bmc`, so CI covers no Path BMC.
-       → seahorn/lib/seahorn/PathBmc.cc:3, seahorn/build/CMakeCache.txt,
+       → seahorn/lib/seahorn/PathBmc.cc:3, ~/builds/seahorn/build/CMakeCache.txt,
          seahorn/.github/workflows/test-seahorn-docker.yml (commented-out steps)
 
 [FACT] `--horn-large-reduce` (off by default) creates a Z3 solver inside

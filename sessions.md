@@ -125,8 +125,22 @@
 - Examples `scratch/mwe/{divshift,divshift_safe,overflow,overflow_safe}.c` match `smt-z3`, as do the 1.3 ones; `mem.c` added as `Pending: 1.6`. New runner: `scratch/run_mwe.sh`.
 - Progress number: opsem 86 + 1 expected failure (was 48 + 1), opsem2 21/50 (was 16). No 1.3 pass lost; all 68 failures answer `unknown`. Blockers now only `select` 64, `const` 2 (1.6) and lambda `fapp` 2 (1.7). Results in `URA/scratch/progress-1.4/`.
 - [FACT] `sea` lowers the overflow intrinsics unless given `--with-arith-overflow`; Z3's marshal silently drops a third argument of `bvsub`, `bvmul`, the divisions and the shifts.
-- [OBS 2026-10-30] VS Code's CMake Tools had left `seahorn/build` without `CMakeCache.txt`; reconfigured with the original values (command now recorded in the journal).
+- [OBS 2026-10-30] VS Code's CMake Tools had left `seahorn/build` without `CMakeCache.txt`; reconfigured with the original values (command now recorded in the journal). It happened again at 11:36: CMake Tools used upstream's `Debug-jammy` preset, whose build folder is `seahorn/build`. Fixed in `URA/.vscode/settings.json`; IntelliSense now reads `build/compile_commands.json`.
 - `journal/2026-10/2026-10-30-step-1.4-bit-vector-operators.md`; plan notes "From 1.4" in 1.6 and 1.7.
 **Critical corrections:** none. One error of my own: restoring the encoder with `cp -p` kept its old timestamp, so ninja installed the planted bugs once; caught by the unit tests and rebuilt.
 **Status:** complete
 **Next-session pickup candidates:** plan 1.5 (models and traces) or 1.6 (arrays, which unblocks 64 tests).
+
+## 2026-11-08
+**Theme:** Full verification of plan steps 1.1-1.4, with fixes.
+**Key outputs:**
+- One commit, `4639f539`, pushed 2026-11-10 (two local commits squashed): FindBitwuzla reads the version from the library without `bitwuzla.pc`; the encoder rejects `=>`, `<=>`, `=`, `distinct` with other than two arguments; Bitwuzla's encoding errors become `UnsupportedExpr`; new tests.
+- New tests: Boolean truth tables against Z3, one-argument n-ary operators, and a differential fuzzer whose `sat` answers are certified by Z3. 320000 fuzzed checks: 0 disagreements.
+- Mutation test: 67 of 68 planted bugs caught; the survivor is equivalent. `scratch/mutate_bitwuzla.py`.
+- opsem/opsem2 answers per test against `smt-z3`: 107 same, 69 `unknown` (`select` 65, `const` 2, `fapp` 2), 0 different. Other checks (examples, selector 6/6 + 8/8, detection 27/27, UBSan, Guard Malloc, other unit tests) pass.
+- Independent review by a subagent: no wrong-answer path; its four points were fixed or parked.
+- Build trees moved out of OneDrive to `~/builds/seahorn` (`SEAHORN_BUILDS`); new `scratch/build_seahorn.sh`; scripts and VS Code settings updated; same results on the new trees; old trees (5.8 GB) deleted.
+- `journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md`; two items added to `loose-ends/parked.md`.
+**Critical corrections:** none of earlier claims. The 1.4 note that bit-vector n-ary forms are only built by Z3-to-Expr converters stands; opsem's default simplifier is such a converter (parked question about `smt-z3`).
+**Status:** complete
+**Next-session pickup candidates:** decide on the uncommitted CI fix (the fork's draft PR cannot pull the buildpack image: `MidVC` is not lowercase); plan 1.5 or 1.6.

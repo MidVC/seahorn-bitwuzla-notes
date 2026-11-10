@@ -96,3 +96,38 @@ Bitwuzla exists.
 **Effort estimate:** ~30 min
 **References:** journal/2026-10/2026-10-22-bitwuzla-smart-detection.md
 
+
+## Does smt-z3 drop factors of an n-ary bvmul after simplification?
+**Status:** parked 2026-11-08
+**Context:** Z3's encoder keeps only the first two arguments of `bvmul`,
+`bvxor`, `bvsub`, the divisions and more (`ExprToZ.def:217-259`). Opsem
+sends non-memory terms through Z3's simplifier and back by default
+(`--horn-bv2-simplify-nonmem`, `BvOpSem2.cc:144,2917`), and Z3 flattens
+`bvmul`. If a 3-argument `bvmul` reaches the solver, `smt-z3` would drop a
+factor and could answer wrongly. Bitwuzla encodes it correctly, so the
+two solvers would disagree with Bitwuzla right.
+**Why parked:** an upstream question, found during the 2026-11-08
+verification; not needed for the Bitwuzla work.
+**To resume:** log the simplified terms (`-log=opsem.simplify`) on tests
+with symbolic `memset`/`memcpy` lengths; look for `bvmul` with three or
+more arguments; then build a small C program where dropping a factor
+changes the answer.
+**Effort estimate:** ~1-2 hours
+**References:** journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md
+
+## Make sure the Bitwuzla header comes from the library's installation
+**Status:** parked 2026-11-08
+**Context:** `include_directories(${BITWUZLA_INCLUDE_DIR})` comes after
+the GMP, Z3 and Yices include directories. If one of those also held a
+different `bitwuzla/` header, SeaHorn would compile against it but link
+the library FindBitwuzla checked, and a renumbered `Kind` enum would
+swap operators silently. Not the case on this Mac.
+**Why parked:** only a suspicion. `include_directories(BEFORE ...)` would
+fix it but could shadow other headers when Bitwuzla lives in a shared
+prefix such as `/usr/local`.
+**To resume:** consider a configure-time check that no other include
+directory of SeaHorn has `bitwuzla/cpp/bitwuzla.h`, or add the directory
+`BEFORE` only to the targets that use Bitwuzla. Matters most for plan 4.3
+(Linux CI).
+**Effort estimate:** ~1 hour
+**References:** journal/2026-11/2026-11-08-verification-of-steps-1.1-1.4.md
