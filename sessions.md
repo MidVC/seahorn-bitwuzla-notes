@@ -219,3 +219,49 @@
 **Next-session pickup candidates:** push `29b09883` and these notes (asked
 first); sync the fork's `dev18` (#614 is merged); plan 1.7 (lambdas; notes
 "From 1.6" in the plan); the parked entries from the whole review.
+
+## 2026-11-12 to 2026-11-13: plan step 1.7
+**Theme:** Plan 1.7 (lambdas and binders, `--horn-bv2-lambdas`) under the
+verification rules; a progress report for the professor.
+**Key outputs:**
+- Plan 1.7 ✅, SeaHorn commit `0a0d2691` (local until the user approves the
+  push, with `29b09883` of 1.6). The encoder handles `lambda`, `forall`,
+  `exists`, `fapp`, stores into functions, pointwise function equality, and
+  `ite` of functions. The model gives `nondet` for functions, and for every
+  term while an assertion has a quantifier.
+- Results: lit with `smt-bw` opsem 123 + 1 (was 87 + 1), opsem2 50/50 (was
+  47); every RUN line of opsem/opsem2 compared: 289 of 293 the same as
+  `smt-z3`, 0 different; formula check 3089 `SAME`, 0 `DIFFERENT`.
+- Evidence: 8 × 4000 fuzzed formulas (30.5% with lambdas, 45.3% with
+  quantifiers) and 16,000 formulas against Z3 on expanded function
+  equalities, 0 disagreements; 41 independent mutants (36 caught, 5
+  equivalent); a fresh review (findings fixed or parked); `verify_all` PASS
+  (188/197 mutants, coverage 96.16%).
+- Not met, and reported: `memphi_lambda.c`'s counterexample has no values
+  (a quantifier in the formula), and a wrong quantified encoding is
+  `UNDECIDED`, not `DIFFERENT`.
+- Scripts: `rerun_lit_tests.py` reruns every RUN line, including those lit
+  skips after a failing one; `check_traces.py` knows a marked known
+  limitation; `compare_answers.py` and `verify_all.sh` updated.
+- `journal/2026-11/2026-11-12-step-1.7-lambdas-and-binders.md`; three
+  parked entries; plan notes "From 1.7" in 1.8 and 2.2.
+- `URA/PROGRESS_REPORT_2026-11-13.md` (not in this repo): what is
+  implemented and the evidence that it is correct, for the professor.
+**Critical corrections:**
+- Bitwuzla's time limit does not bound its quantifier procedure (a check
+  ran 3 hours past 5 s), and neither would a `Terminator`. The fuzz tests
+  now kill a quantified check in a child process; plan 2.2 needs the same.
+- `define-fun` in the formula check made Z3 5.1.0 report false
+  differences; it prints top-level lets instead.
+- Two of my own criteria conflicted (M2 and E2). The criteria were kept,
+  and E2 is reported as not met.
+- My 1.7 change to `rerun_lit_tests.py` left out RUN lines after a failing
+  one, so `calloc`'s lambda lines were never compared. Found by
+  `verify_all`; fixed, with a negative control.
+- After a review fix, two mutants the tests had caught survived. Found by
+  `verify_all`'s full mutation run; a test was added.
+**Status:** complete (push pending)
+**Next-session pickup candidates:** push `29b09883`, `0a0d2691` and these
+notes (ask first); sync the fork's `dev18` (#614 is merged); plan 1.8 (notes
+"From 1.7"); parked: models of lambda-mode memory PHIs, decoding lambda
+values, the check's quadratic printing.

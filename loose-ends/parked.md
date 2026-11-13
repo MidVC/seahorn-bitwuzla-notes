@@ -247,3 +247,63 @@ operators.
 
 **Effort estimate:** ~1-2 hours
 **References:** journal/2026-11/2026-11-10-whole-review-of-unreviewed-features.md
+
+## Models of lambda-mode programs whose memory meets at a PHI
+**Status:** parked 2026-11-12
+**Context:** Since plan 1.7, while an assertion has a quantifier the model
+gives no values at all. Reading a value can make Bitwuzla 0.9.1 solve again
+when a quantifier is outside the assertions (`solver_engine.cpp:236-264`),
+so values might come from two models. In lambda mode with the default PHI
+encoding, every memory PHI is a pointwise forall. Such a program gets no
+counterexample values, and its harness does not reach the error
+(`memphi_lambda.c`; criterion E2 of 1.7 fails there). The answer is not
+affected.
+
+A precise alternative: every `solve()` raises the statistic
+`solver::bv::num_checks` (`bv_solver.cpp:109`, `solver_engine.cpp:60-90`).
+Read it after the check and around each `get_value`. If it changed, refuse
+that value and every later one of this model (bump the generation). Values
+read before are from one model. It depends on Bitwuzla's internal
+statistic name, so it should fall back to the current guard if the name is
+missing.
+**Why parked:** it trades the simple guard for one that depends on
+Bitwuzla's internals; the user decides.
+**To resume:**
+1. Implement the check in `eval_in_model`, with the fallback.
+2. Test that a probe17b-style definition refuses later values.
+3. Run `memphi_lambda.c` through `check_traces.py`, and remove its
+   `// Known: no smt-bw counterexample values` line (the script reports a
+   marker that is out of date as a failure).
+4. Write mutants for the new lines.
+
+**Effort estimate:** ~half-day with the verification rules
+**References:** journal/2026-11/2026-11-12-step-1.7-lambdas-and-binders.md
+
+## The formula check is quadratic on terms with binders
+**Status:** parked 2026-11-12
+**Context:** `printWithLets` calls `substitute_term` on every closed
+subterm, and Bitwuzla walks the whole sub-DAG each time. A chain of 4000
+nodes takes 3 s (review of 1.7). Only `--horn-bw-check-encoding` is
+affected, a testing option. The opsem/opsem2 runs were fine.
+**Why parked:** performance only, of a testing tool.
+**To resume:** build the shallow node directly with `mk_term(kind, named
+children, indices)` (and `mk_const_array` for a constant array). Keep
+`substitute_term` only for binder nodes, or memoize it.
+**Effort estimate:** ~1-2 hours with tests and mutants
+**References:** journal/2026-11/2026-11-12-step-1.7-lambdas-and-binders.md
+
+## Decode lambda values in models
+**Status:** parked 2026-11-12
+**Context:** A function (lambda) term gets `nondet` from the Bitwuzla
+model. Z3's model gives lambda-mode memory as `store(... const-array ...)`.
+`get_value` of a lambda over constants returns the lambda itself, not a
+value, so decoding needs either an expansion over the indices that matter
+or converting store-shaped lambdas to arrays.
+**Why parked:** no caller needs it yet. Harnesses read only the nondet
+calls' values, and in lambda mode the memory registers that are arrays
+still decode.
+**To resume:** for SeaHorn's store-shaped lambdas
+(`lambda x. ite(x = p, v, m(x))` down to `lambda x. A[x]`), evaluate the
+array term `store(A, p, v)` instead.
+**Effort estimate:** ~half-day
+**References:** journal/2026-11/2026-11-12-step-1.7-lambdas-and-binders.md
