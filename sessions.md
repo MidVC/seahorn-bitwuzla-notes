@@ -215,7 +215,7 @@
   check used the restored source. Only the mutation script, which
   restores on signals, touches sources now.
 
-**Status:** complete (push pending)
+**Status:** complete (pushed 2026-11-13: `29b09883`, notes `75cfe1b`)
 **Next-session pickup candidates:** push `29b09883` and these notes (asked
 first); sync the fork's `dev18` (#614 is merged); plan 1.7 (lambdas; notes
 "From 1.6" in the plan); the parked entries from the whole review.
@@ -260,7 +260,7 @@ verification rules; a progress report for the professor.
   `verify_all`; fixed, with a negative control.
 - After a review fix, two mutants the tests had caught survived. Found by
   `verify_all`'s full mutation run; a test was added.
-**Status:** complete (push pending)
+**Status:** complete (pushed 2026-11-13: `0a0d2691`, notes `308800f`)
 **Next-session pickup candidates:** push `29b09883`, `0a0d2691` and these
 notes (ask first); sync the fork's `dev18` (#614 is merged); plan 1.8 (notes
 "From 1.7"); parked: models of lambda-mode memory PHIs, decoding lambda
